@@ -1,21 +1,21 @@
 import { DefaultUi, Player, Youtube } from "@vime/react";
-import { gql, useQuery } from "@apollo/client";
 import { CaretRight, DiscordLogo, FileArrowDown, Image, Lightning } from "phosphor-react";
 
 import '@vime/core/themes/default.css';
+import { useGetLessonBySlugQuery } from "../graphql/generated";
 
 interface VideoProps {
     lessonSlug: string;
 }
 
 export function Video(props: VideoProps){
-    const { data } = useQuery<GetLessonBySlugPesponse>(GET_LESSON_BY_SLUG_QUERY, {
+    const { data } = useGetLessonBySlugQuery({
         variables: {
             slug: props.lessonSlug,
         }
     })
 
-    if (!data) {
+    if (!data || !data.lesson) {
         return (
             <div className="flex-1">
                <p>Carregando...</p> 
@@ -28,10 +28,10 @@ export function Video(props: VideoProps){
             <div className="bg-black flex justify-center">
                 <div className="h-full w-full max-w-[1100px] max-h-[60vh] aspect-video">
                     <Player language="pt">
-                        <Youtube videoId={data.lesson.videoID} key={data.lesson.videoID} />
+                        <Youtube videoId={data.lesson.videoId}/>
                         <DefaultUi />
                     </Player>
-                </div>
+                </div> 
             </div>
 
             <div className="p-8 max-w-[1100px] mx-auto">
@@ -44,6 +44,7 @@ export function Video(props: VideoProps){
                             {data.lesson.description}
                         </p>
 
+                       {data.lesson.teacher && (
                         <div className="flex items-center gap-4 mt-6">
                             <img 
                                 className="h-16 w-16 rounded-full border-2 border-blue-500"
@@ -56,6 +57,7 @@ export function Video(props: VideoProps){
                                 <span className="text-gray-200 text-sm block">{data.lesson.teacher.bio}</span>
                             </div>
                         </div>
+                       )}
                     </div>
 
                     <div className="flex flex-col gap-4">
